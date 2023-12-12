@@ -31,12 +31,14 @@ class MainActivity : ComponentActivity() {
                     composable("newScreen") {
                         NewScreen()
                     }
+                    composable("Card") {
+                        NewScreen()
+                    }
                 }
             }
         }
     }
 }
-
 @Composable
 fun MainScreen(navController: NavController) {
     Surface(
@@ -63,7 +65,25 @@ fun MainScreen(navController: NavController) {
 
 @Composable
 fun NewScreen() {
-    Text("Nouvelle Page")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Greeting("ROARRR")
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Afficher les joueurs de 1 à 10
+        for (i in 1..10) {
+            Text("Joueur $i")
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        Spacer(modifier = Modifier.weight(1f)) // Utiliser l'espace restant
+        ValiderButton(onClick = { /* Action pour le bouton Valider */ })
+    }
 }
 
 @Composable
