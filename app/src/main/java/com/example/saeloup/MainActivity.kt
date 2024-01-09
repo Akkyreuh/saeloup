@@ -22,8 +22,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.saeloup.View.Loup
+import com.example.saeloup.View.Room
+import com.example.saeloup.View.Villageois
 import com.example.saeloup.ui.theme.SaeloupTheme
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,13 +33,12 @@ class MainActivity : ComponentActivity() {
             SaeloupTheme {
                 // Setup NavController
                 val navController = rememberNavController()
-
                 NavHost(navController = navController, startDestination = "main") {
                     composable("main") {
                         MainScreen(navController)
                     }
                     composable("newScreen") {
-                        NewScreen()
+                        Room()
                     }
                 }
             }
@@ -68,65 +69,6 @@ fun MainScreen(navController: NavController) {
         }
     }
 }
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun NewScreen() = Scaffold(
-    topBar = {
-        SmallTopAppBar(
-            title = {},
-            navigationIcon = {
-                // Placeholder for the button at the top left
-                IconButton(onClick = { /* TODO: Handle left icon click */ }) {
-                    Icon(Icons.Filled.Menu, contentDescription = "Menu")
-                }
-            },
-            actions = {
-                // Placeholder for the button at the top right
-                IconButton(onClick = { /* TODO: Handle right icon click */ }) {
-                    Icon(Icons.Filled.MoreVert, contentDescription = "More actions")
-                }
-            }
-        )
-    }
-) { innerPadding ->
-    Column(
-        modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Circle for the image at the center of the screen
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(250.dp)
-                .background(Color.Green.copy(alpha = 0.2f), CircleShape)
-                .padding(16.dp)
-        ) {
-            // Placeholder for the image
-            // Replace with an actual Image composable when you have the image resource
-            Image(
-                painter = painterResource(id = R.drawable.fourche),
-                contentDescription = "Center Image",
-                modifier = Modifier.size(200.dp).padding(8.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        // Your form or any other composables go here
-        // For example, a dropdown menu or a list of players
-        DropdownMenuSample()
-        Spacer(modifier = Modifier.height(24.dp))
-        // Send button
-        Button(
-            onClick = { /* TODO: Handle send button click */ },
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text("Vote")
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownMenuSample() {
@@ -195,7 +137,7 @@ fun SimpleFilledTextFieldSample(label: String) {
 fun ValiderButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        content = { Text(text = "Valider") },
+        content = { Text(text = "   Valider") },
         modifier = Modifier.padding(bottom = 16.dp)
     )
 }
