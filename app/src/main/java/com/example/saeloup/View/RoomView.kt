@@ -1,6 +1,7 @@
 package com.example.saeloup.View
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,20 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import com.example.saeloup.AppState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.database.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.*
+import com.example.saeloup.ModelNavigation
+import com.google.firebase.database.*
 
 
 class RoomView {
@@ -45,25 +60,67 @@ class RoomView {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun Room() {
+fun Room(navController: NavController) {
+    val deroulement = remember { mutableStateOf("") }
+    val joueurs = remember { mutableStateOf(listOf<String>()) }
+    val shouldNavigate = remember { mutableStateOf(false) }
+
+    val partiePath = AppState.currentJoueurPath?.substringBefore("/Joueurs") ?: ""
+
+    LaunchedEffect(partiePath) {
+        val deroulementRef = Firebase.database.reference.child("$partiePath/deroulement")
+        deroulementRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                deroulement.value = snapshot.getValue(String::class.java) ?: ""
+                if (deroulement.value == "start") {
+                    shouldNavigate.value = true
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Gérer l'erreur
+            }
+        })
+
+        // Récupérer la liste des joueurs
+        val joueursRef = Firebase.database.reference.child("$partiePath/Joueurs")
+        joueursRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val joueursList = snapshot.children.map { it.child("pseudo").getValue(String::class.java) ?: "Inconnu" }
+                joueurs.value = joueursList
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Gérer l'erreur
+            }
+        })
+        Log.d("RoomView", "Deroulement: ${deroulement.value}, Should Navigate: ${shouldNavigate.value}")
+
+    }
+
+    if (shouldNavigate.value) {
+        ModelNavigation(navController)
+        shouldNavigate.value = false // Réinitialiser l'état pour éviter les navigations répétées
+    }
+
+    // UI de la page Room
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = { Text("Salle d'Attente") },
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = { /* Gérer le retour */ }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Retour")
                     }
                 },
                 actions = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = { /* Actions supplémentaires */ }) {
                         Icon(Icons.Filled.MoreVert, contentDescription = "Plus d'actions")
                     }
                 }
             )
         }
     ) {
-        // Contenu principal de la vue Room
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -71,8 +128,17 @@ fun Room() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Chemin du joueur actuel : ${AppState.currentJoueurPath ?: "Non disponible"}")
-            // Autres composants si nécessaire
+            Text("Deroulement: ${deroulement.value}") // Affichage pour débogage
+            Text("Should Navigate: ${shouldNavigate.value}") // Affichage pour débogage
+
+            Text("Bienvenue dans la salle d'attente")
+
+            // Afficher la liste des joueurs
+            LazyColumn {
+                items(joueurs.value) { joueur ->
+                    Text(joueur)
+                }
+            }
         }
     }
 }

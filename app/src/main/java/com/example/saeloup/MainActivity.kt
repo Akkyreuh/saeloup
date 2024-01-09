@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                         MainScreen(navController)
                     }
                     composable("newScreen") {
-                        Room()
+                        Room(navController)
                     }
                 }
             }
