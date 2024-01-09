@@ -26,6 +26,12 @@ import com.example.saeloup.View.Loup
 import com.example.saeloup.View.Room
 import com.example.saeloup.View.Villageois
 import com.example.saeloup.ui.theme.SaeloupTheme
+import com.google.firebase.Firebase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +54,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(navController: NavController) {
+    val pseudo = remember { mutableStateOf("") }
+    val pin = remember { mutableStateOf("") }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -62,13 +71,86 @@ fun MainScreen(navController: NavController) {
         ) {
             Greeting("ROARRR")
             Spacer(modifier = Modifier.height(16.dp))
-            SimpleFilledTextFieldSample("PSEUDO :")
-            SimpleFilledTextFieldSample("CODE PIN")
+
+
+            SimpleFilledTextFieldSample(
+                text = pin.value,
+                onValueChange = { newValue -> pin.value = newValue },
+                label = "CODE PIN"
+            )
+
+            SimpleFilledTextFieldSample(
+                text = pseudo.value,
+                onValueChange = { newValue -> pseudo.value = newValue },
+                label = "PSEUDO :"
+            )
+
+
+
             Spacer(modifier = Modifier.weight(1f))
-            ValiderButton(onClick = { navController.navigate("newScreen") })
+
+            // Bouton de validation
+            ValiderButton(onClick = { verifierEtAjouterJoueur(pin.value, pseudo.value, navController) })
         }
     }
 }
+
+object AppState {
+    var currentJoueurPath: String? = null
+}
+fun verifierEtAjouterJoueur(pin: String, pseudo: String, navController: NavController) {
+    val databaseReference = Firebase.database.reference.child("Partie$pin")
+
+    databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            if (snapshot.exists()) {
+                // Ajouter un joueur
+                val joueur = mapOf(
+                    "etat" to "vivant",
+                    "id" to snapshot.child("Joueurs").childrenCount + 1,
+                    "role" to "loup", // ou une autre logique pour déterminer le rôle
+                    "pseudo" to pseudo,
+                    "vote" to 0
+                )
+                databaseReference.child("Joueurs").child("Joueur${snapshot.child("Joueurs").childrenCount + 1}").setValue(joueur)
+                val joueurPath = "Partie$pin/Joueurs/Joueur${snapshot.child("Joueurs").childrenCount}"
+                AppState.currentJoueurPath = joueurPath
+
+
+                // Naviguer vers le nouvel écran
+                navController.navigate("newScreen")
+            } else {
+                // Gérer le cas où le code PIN n'existe pas
+            }
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            // Gérer les erreurs
+        }
+    })
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SimpleFilledTextFieldSample(text: String, onValueChange: (String) -> Unit, label: String) {
+    TextField(
+        value = text,
+        onValueChange = onValueChange,
+        label = { Text(label) }
+        // Vous pouvez ajouter d'autres paramètres ici, comme des modificateurs
+    )
+}
+
+
+
+
+
+
+
+
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownMenuSample() {

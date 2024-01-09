@@ -32,6 +32,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.saeloup.DropdownMenuSample
 import com.example.saeloup.R
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.unit.dp
+import com.example.saeloup.AppState
+
 
 class RoomView {
 }
@@ -65,7 +71,7 @@ fun Room() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Bienvenue dans la salle d'attente")
+            Text("Chemin du joueur actuel : ${AppState.currentJoueurPath ?: "Non disponible"}")
             // Autres composants si nécessaire
         }
     }
