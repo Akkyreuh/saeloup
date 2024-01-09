@@ -25,20 +25,20 @@ import androidx.navigation.compose.rememberNavController
 import com.example.saeloup.View.Loup
 import com.example.saeloup.View.Room
 import com.example.saeloup.View.Villageois
+import com.example.saeloup.View.Voyante
 import com.example.saeloup.ui.theme.SaeloupTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             SaeloupTheme {
-                // Setup NavController
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "main") {
                     composable("main") {
                         MainScreen(navController)
                     }
                     composable("newScreen") {
-                        Room()
+                        Voyante(navController = navController)
                     }
                 }
             }
