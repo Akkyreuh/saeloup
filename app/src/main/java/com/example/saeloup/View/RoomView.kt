@@ -102,8 +102,8 @@ fun Room(navController: NavController) {
     }
 
     if (shouldNavigate.value) {
-        ModelNavigation(navController)
-        shouldNavigate.value = false // Réinitialiser l'état pour éviter les navigations répétées
+        navController.navigate("modelnavigation")
+        shouldNavigate.value = false
     }
 
     // UI de la page Room

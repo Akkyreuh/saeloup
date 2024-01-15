@@ -23,8 +23,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.saeloup.View.Loup
+import com.example.saeloup.View.LoupView
 import com.example.saeloup.View.Room
 import com.example.saeloup.View.Villageois
+import com.example.saeloup.View.VillageoisView
+import com.example.saeloup.View.Voyante
+import com.example.saeloup.View.VoyanteView
 import com.example.saeloup.ui.theme.SaeloupTheme
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
@@ -45,6 +49,18 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("newScreen") {
                         Room(navController)
+                    }
+                    composable("modelnavigation") {
+                        ModelNavigation(navController)
+                    }
+                    composable("loupView") {
+                        Loup(navController)
+                    }
+                    composable("villageoisView") {
+                        Villageois(navController)
+                    }
+                    composable("voyanteView") {
+                        Voyante(navController)
                     }
                 }
             }
