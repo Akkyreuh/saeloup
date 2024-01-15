@@ -50,6 +50,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
+import androidx.navigation.compose.composable
 import com.example.saeloup.ModelNavigation
 import com.google.firebase.database.*
 
@@ -72,9 +73,11 @@ fun Room(navController: NavController) {
         deroulementRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 deroulement.value = snapshot.getValue(String::class.java) ?: ""
+
                 if (deroulement.value == "start") {
                     shouldNavigate.value = true
                 }
+                Log.d("RoomView", "Deroulement: ${deroulement.value}, Should Navigate: ${shouldNavigate.value}")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -94,7 +97,7 @@ fun Room(navController: NavController) {
                 // Gérer l'erreur
             }
         })
-        Log.d("RoomView", "Deroulement: ${deroulement.value}, Should Navigate: ${shouldNavigate.value}")
+//        Log.d("RoomView", "Deroulement: ${deroulement.value}, Should Navigate: ${shouldNavigate.value}")
 
     }
 
