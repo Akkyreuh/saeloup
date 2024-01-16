@@ -45,7 +45,8 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "main") {
                     composable("main") {
-                        MainScreen(navController)
+//                        MainScreen(navController)
+                        Loup(navController)
                     }
                     composable("newScreen") {
                         Room(navController)

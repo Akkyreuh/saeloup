@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,8 +27,10 @@ import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +46,8 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 
+
+
 class LoupView {
 }
 
@@ -50,6 +56,7 @@ class LoupView {
 fun Loup(navController: NavController) {
     val deroulement = remember { mutableStateOf("") }
     val shouldNavigate = remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
 
     val partiePath = AppState.currentJoueurPath?.substringBefore("/Joueurs") ?: ""
 
@@ -71,11 +78,11 @@ fun Loup(navController: NavController) {
         })
     }
 
-    if (shouldNavigate.value) {
-        Log.d("RoomView", "humm")
-        navController.navigate("modelnavigation")
-        shouldNavigate.value = false
-    }
+//    if (shouldNavigate.value) {
+//        Log.d("RoomView", "humm")
+//        navController.navigate("modelnavigation")
+//        shouldNavigate.value = false
+//    }
 
     Scaffold(
         topBar = {
@@ -116,13 +123,37 @@ fun Loup(navController: NavController) {
                 Image(
                     painter = painterResource(id = R.drawable.loup),
                     contentDescription = "Center Image",
-                    modifier = Modifier.size(168.dp).padding(8.dp)
+                    modifier = Modifier
+                        .size(168.dp)
+                        .padding(8.dp)
                 )
             }
             Spacer(modifier = Modifier.height(90.dp))
             // Your form or any other composables go here
             // For example, a dropdown menu or a list of players
-            DropdownMenuSample()
+
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
+                IconButton(onClick = { expanded = true }) {
+                    Icon(Icons.Filled.MoreVert, contentDescription = "Menu")
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    DropdownMenuItem(onClick = {
+                        // Votre code ici. Ce bloc ne retourne rien.
+                    }) {
+                        Text("Option")
+                    }
+
+
+
+                    // Ajoutez plus d'options ici
+                }
+            }
+
+
             Spacer(modifier = Modifier.height(24.dp))
             // Send button
             Button(
