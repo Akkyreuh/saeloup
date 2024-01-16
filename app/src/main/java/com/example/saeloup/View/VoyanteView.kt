@@ -77,10 +77,28 @@ fun Voyante(navController: NavController) = Scaffold(
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD8D8D8))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.dessin_anime_yeux_heureux),
-                contentDescription = "Vote Image",
-                modifier = Modifier.size(50.dp)
+                painter = painterResource(id = R.drawable.crystal),
+                contentDescription = "Center Image",
+                modifier = Modifier
+                    .size(168.dp)
+                    .padding(8.dp)
             )
+        }
+        Spacer(modifier = Modifier.height(90.dp))
+        // Your form or any other composables go here
+        // For example, a dropdown menu or a list of players
+        DropdownMenuSample()
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
+            IconButton(onClick = { var expanded = true }) {
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            // Send button
+            Button(
+                onClick = {},
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text("Vote")
+            }
         }
     }
 }

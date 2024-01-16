@@ -4,18 +4,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.saeloup.DropdownMenuSample
@@ -58,28 +56,43 @@ fun Sorciere(navController: NavController) = Scaffold(
                 .padding(16.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.fourche),
+                painter = painterResource(id = R.drawable.potion__2_),
                 contentDescription = "Center Image",
-                modifier = Modifier.size(200.dp).padding(8.dp)
+                modifier = Modifier
+                    .size(168.dp)
+                    .padding(8.dp)
             )
         }
-        Spacer(modifier = Modifier.height(32.dp))
-        DropdownMenuSample()
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(
-            onClick = {},
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(0.5f)
-                .height(72.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0))
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.urne_electorale),
-                contentDescription = "Vote Image",
-                modifier = Modifier.size(50.dp)
-            )
+        Spacer(modifier = Modifier.height(90.dp))
+        Text(
+            text = "Joueur 1 est visé",
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(16.dp)
+        )
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            // Boutons "Sauver", "Tuer", et "Ne rien faire"
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Row {
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text("Sauver")
+                    }
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.padding(start = 8.dp)
+                    ) {
+                        Text("Tuer")
+                    }
+                }
+                Button(
+                    onClick = {},
+                    modifier = Modifier.padding(top = 16.dp)
+                ) {
+                    Text("Ne rien faire")
+                }
+            }
         }
     }
 }

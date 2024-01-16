@@ -69,7 +69,10 @@ fun Loup(navController: NavController) {
                 if (deroulement.value != "loup") {
                     shouldNavigate.value = true
                 }
-                Log.d("RoomView", "Deroulement: ${deroulement.value}, Should Navigate: ${shouldNavigate.value}")
+                Log.d(
+                    "RoomView",
+                    "Deroulement: ${deroulement.value}, Should Navigate: ${shouldNavigate.value}"
+                )
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -131,24 +134,18 @@ fun Loup(navController: NavController) {
             Spacer(modifier = Modifier.height(90.dp))
             // Your form or any other composables go here
             // For example, a dropdown menu or a list of players
-
+            DropdownMenuSample()
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
                 IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Filled.MoreVert, contentDescription = "Menu")
                 }
-
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
+                Spacer(modifier = Modifier.height(24.dp))
+                // Send button
+                Button(
+                    onClick = {},
+                    modifier = Modifier.padding(16.dp)
                 ) {
-
-            Spacer(modifier = Modifier.height(24.dp))
-            // Send button
-            Button(
-                onClick = {},
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text("Vote")
+                    Text("Vote")
+                }
             }
         }
     }

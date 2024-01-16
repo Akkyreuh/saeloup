@@ -60,26 +60,28 @@ fun Cupidon(navController: NavController) = Scaffold(
             Image(
                 painter = painterResource(id = R.drawable.arc_de_cupidon),
                 contentDescription = "Center Image",
-                modifier = Modifier.size(200.dp).padding(8.dp)
+                modifier = Modifier
+                    .size(168.dp)
+                    .padding(8.dp)
             )
         }
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(90.dp))
+        // Your form or any other composables go here
+        // For example, a dropdown menu or a list of players
         DropdownMenuSample()
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(
-            onClick = {},
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(0.5f)
-                .height(72.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0))
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.urne_electorale),
-                contentDescription = "Vote Image",
-                modifier = Modifier.size(50.dp)
-            )
+        DropdownMenuSample()
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
+            IconButton(onClick = { var expanded = true }) {
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            // Send button
+            Button(
+                onClick = {},
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text("Vote")
+            }
         }
     }
 }
+

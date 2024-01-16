@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController, startDestination = "main") {
                     composable("main") {
 //                        MainScreen(navController)
-                        Loup(navController)
+                        Sorciere(navController)
                     }
                     composable("newScreen") {
                         Room(navController)
