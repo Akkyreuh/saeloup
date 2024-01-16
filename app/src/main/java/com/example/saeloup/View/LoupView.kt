@@ -141,18 +141,6 @@ fun Loup(navController: NavController) {
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
                 ) {
-                    DropdownMenuItem(onClick = {
-                        // Votre code ici. Ce bloc ne retourne rien.
-                    }) {
-                        Text("Option")
-                    }
-
-
-
-                    // Ajoutez plus d'options ici
-                }
-            }
-
 
             Spacer(modifier = Modifier.height(24.dp))
             // Send button

@@ -25,6 +25,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.saeloup.View.Loup
 import com.example.saeloup.View.LoupView
 import com.example.saeloup.View.Room
+import com.example.saeloup.View.Sorciere
+import com.example.saeloup.View.SorciereView
+import com.example.saeloup.View.Chasseur
+import com.example.saeloup.View.ChasseurView
+import com.example.saeloup.View.Garde
+import com.example.saeloup.View.GardeView
+import com.example.saeloup.View.Cupidon
+import com.example.saeloup.View.CupidonView
 import com.example.saeloup.View.Villageois
 import com.example.saeloup.View.VillageoisView
 import com.example.saeloup.View.Voyante
@@ -62,6 +70,18 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("voyanteView") {
                         Voyante(navController)
+                    }
+                    composable("chasseurView") {
+                        Chasseur(navController)
+                    }
+                    composable("sorciereView") {
+                        Sorciere(navController)
+                    }
+                    composable("gardeView") {
+                        Garde(navController)
+                    }
+                    composable("cupidonView") {
+                        Cupidon(navController)
                     }
                 }
             }
@@ -157,10 +177,6 @@ fun SimpleFilledTextFieldSample(text: String, onValueChange: (String) -> Unit, l
         // Vous pouvez ajouter d'autres paramètres ici, comme des modificateurs
     )
 }
-
-
-
-
 
 
 
