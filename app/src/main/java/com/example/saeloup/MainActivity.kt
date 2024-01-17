@@ -135,37 +135,102 @@ fun MainScreen(navController: NavController) {
 object AppState {
     var currentJoueurPath: String? = null
 }
+//fun verifierEtAjouterJoueur(pin: String, pseudo: String, navController: NavController) {
+//    val databaseReference = Firebase.database.reference.child("Partie$pin")
+//
+//    databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+//        override fun onDataChange(snapshot: DataSnapshot) {
+//            if (snapshot.exists()) {
+//                // Ajouter un joueur
+//                val joueur = mapOf(
+//                    "etat" to "vivant",
+//                    "id" to snapshot.child("Joueurs").childrenCount + 1,
+//                    "role" to "loup", // ou une autre logique pour déterminer le rôle
+//                    "pseudo" to pseudo,
+//                    "vote" to 0
+//                )
+//                databaseReference.child("Joueurs").child("Joueur${snapshot.child("Joueurs").childrenCount + 1}").setValue(joueur)
+//                val joueurPath = "Partie$pin/Joueurs/Joueur${snapshot.child("Joueurs").childrenCount}"
+//                AppState.currentJoueurPath = joueurPath
+//
+//
+//                // Naviguer vers le nouvel écran
+//                navController.navigate("newScreen")
+//            } else {
+//                // Gérer le cas où le code PIN n'existe pas
+//            }
+//        }
+//
+//        override fun onCancelled(error: DatabaseError) {
+//            // Gérer les erreurs
+//        }
+//    })
+//}
+
+
 fun verifierEtAjouterJoueur(pin: String, pseudo: String, navController: NavController) {
     val databaseReference = Firebase.database.reference.child("Partie$pin")
+
+    // Structure pour gérer les rôles
+    val rolesMax = mapOf(
+        "loup" to 2,
+        "villageois" to 2, // Cette valeur peut être ajustée si nécessaire
+        "voyante" to 1,
+        "sorciere" to 1,
+        "chasseur" to 1,
+        "garde" to 1,
+        "cupidon" to 1
+    )
 
     databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
             if (snapshot.exists()) {
-                // Ajouter un joueur
+                // Compter les rôles actuels
+                val rolesCount = mutableMapOf<String, Int>()
+                snapshot.child("Joueurs").children.forEach { joueurSnapshot ->
+                    val role = joueurSnapshot.child("role").getValue(String::class.java) ?: return
+                    rolesCount[role] = rolesCount.getOrDefault(role, 0) + 1
+                }
+
+                // Filtrer les rôles disponibles
+                val rolesDisponibles = rolesMax.filter { (role, max) ->
+                    rolesCount.getOrDefault(role, 0) < max
+                }.keys.toList()
+
+                // Sélectionner un rôle aléatoire ou le rôle de villageois
+                val roleAttribue = if (rolesDisponibles.isNotEmpty()) {
+                    rolesDisponibles.random()
+                } else {
+                    "villageois" // Attribuer le rôle de villageois si aucun autre rôle n'est disponible
+                }
+
+                // Ajouter un joueur avec le rôle attribué
                 val joueur = mapOf(
                     "etat" to "vivant",
                     "id" to snapshot.child("Joueurs").childrenCount + 1,
-                    "role" to "loup", // ou une autre logique pour déterminer le rôle
+                    "role" to roleAttribue,
                     "pseudo" to pseudo,
                     "vote" to 0
                 )
                 databaseReference.child("Joueurs").child("Joueur${snapshot.child("Joueurs").childrenCount + 1}").setValue(joueur)
-                val joueurPath = "Partie$pin/Joueurs/Joueur${snapshot.child("Joueurs").childrenCount}"
+                val joueurPath = "Partie$pin/Joueurs/Joueur${snapshot.child("Joueurs").childrenCount + 1}"
                 AppState.currentJoueurPath = joueurPath
-
 
                 // Naviguer vers le nouvel écran
                 navController.navigate("newScreen")
             } else {
                 // Gérer le cas où le code PIN n'existe pas
+                // Ajoutez ici votre logique pour gérer ce cas
             }
         }
 
-        override fun onCancelled(error: DatabaseError) {
+        override fun onCancelled(databaseError: DatabaseError) {
             // Gérer les erreurs
+            // Ajoutez ici votre logique pour gérer les erreurs de base de données
         }
     })
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -57,7 +57,7 @@ fun Villageois(navController: NavController) {
             override fun onDataChange(snapshot: DataSnapshot) {
                 deroulement.value = snapshot.getValue(String::class.java) ?: ""
 
-                if (deroulement.value != "loup") {
+                if (deroulement.value != "villageois") {
                     shouldNavigate.value = true
                 }
                 Log.d("RoomView", "Deroulement: ${deroulement.value}, Should Navigate: ${shouldNavigate.value}")

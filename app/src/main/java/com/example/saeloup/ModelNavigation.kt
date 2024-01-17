@@ -28,12 +28,14 @@ fun ModelNavigation(navController: NavController) {
     val roleJoueur = remember { mutableStateOf("") }
 
     val joueurPath = AppState.currentJoueurPath ?: return
+    Log.d("joueurPath", "joueurPath: ${joueurPath}")
 
     LaunchedEffect(joueurPath) {
         val joueurRef = Firebase.database.reference.child(joueurPath)
         joueurRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 roleJoueur.value = snapshot.child("role").getValue(String::class.java) ?: ""
+                Log.d("role", "Role: ${roleJoueur.value}")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -78,7 +80,7 @@ fun ModelNavigation(navController: NavController) {
 
 fun navigateBasedOnDeroulementEtRole(deroulement: String, roleJoueur: String, navController: NavController) {
     when {
-        deroulement == "nuit" || deroulement == "jour" -> navController.navigate("${deroulement}View")
+//        deroulement == "nuit" || deroulement == "jour" -> navController.navigate("${deroulement}View")
         deroulement == roleJoueur -> navController.navigate("${deroulement}View")
         else -> {
             // Gérer les cas inattendus ou la valeur par défaut
