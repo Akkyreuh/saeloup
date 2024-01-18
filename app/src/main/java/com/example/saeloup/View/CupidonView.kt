@@ -69,11 +69,11 @@ fun Cupidon(navController: NavController) {
         })
     }
 
-//    if (shouldNavigate.value) {
-//        Log.d("RoomView", "humm")
-//        navController.navigate("modelnavigation")
-//        shouldNavigate.value = false
-//    }
+    if (shouldNavigate.value) {
+        Log.d("RoomView", "humm")
+        navController.navigate("modelnavigation")
+        shouldNavigate.value = false
+    }
     Scaffold(
         topBar = {
             SmallTopAppBar(
