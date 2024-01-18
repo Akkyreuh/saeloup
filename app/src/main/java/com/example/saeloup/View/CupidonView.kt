@@ -69,11 +69,11 @@ fun Cupidon(navController: NavController) {
         })
     }
 
-    if (shouldNavigate.value) {
-        Log.d("RoomView", "humm")
-        navController.navigate("modelnavigation")
-        shouldNavigate.value = false
-    }
+//    if (shouldNavigate.value) {
+//        Log.d("RoomView", "humm")
+//        navController.navigate("modelnavigation")
+//        shouldNavigate.value = false
+//    }
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -124,7 +124,7 @@ fun Cupidon(navController: NavController) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0))
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.urne_electorale),
+                    painter = painterResource(id = R.drawable.coeur),
                     contentDescription = "Vote Image",
                     modifier = Modifier.size(50.dp)
                 )

@@ -1,6 +1,7 @@
 package com.example.saeloup.View
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -69,11 +70,11 @@ fun Garde(navController: NavController) {
         })
     }
 
-    if (shouldNavigate.value) {
-        Log.d("RoomView", "humm")
-        navController.navigate("modelnavigation")
-        shouldNavigate.value = false
-    }
+//    if (shouldNavigate.value) {
+//        Log.d("RoomView", "humm")
+//        navController.navigate("modelnavigation")
+//        shouldNavigate.value = false
+//    }
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -102,7 +103,7 @@ fun Garde(navController: NavController) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(250.dp)
-                    .background(Color.Green.copy(alpha = 0.2f), CircleShape)
+                    .background(Color(0xFFFFCFF79), CircleShape)
                     .padding(16.dp)
             ) {
                 Image(
@@ -112,7 +113,36 @@ fun Garde(navController: NavController) {
                 )
             }
             Spacer(modifier = Modifier.height(32.dp))
-            DropdownMenuSample()
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = {
+                    expanded = !expanded
+                }
+            ) {
+                TextField(
+                    value = selectedText,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor()
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    coffeeDrinks.forEach { item ->
+                        DropdownMenuItem(
+                            text = { Text(text = item) },
+                            onClick = {
+                                selectedText = item
+                                expanded = false
+                                Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {},

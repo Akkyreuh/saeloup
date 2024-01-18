@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -82,7 +84,10 @@ fun Loup(navController: NavController) {
                 if (deroulement.value != "loup") {
                     shouldNavigate.value = true
                 }
-                Log.d("RoomView", "Deroulement: ${deroulement.value}, Should Navigate: ${shouldNavigate.value}")
+                Log.d(
+                    "RoomView",
+                    "Deroulement: ${deroulement.value}, Should Navigate: ${shouldNavigate.value}"
+                )
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -91,11 +96,11 @@ fun Loup(navController: NavController) {
         })
     }
 
-    if (shouldNavigate.value) {
-        Log.d("RoomView", "humm")
-        navController.navigate("modelnavigation")
-        shouldNavigate.value = false
-    }
+//    if (shouldNavigate.value) {
+//      Log.d("RoomView", "humm")
+//        navController.navigate("modelnavigation")
+//        shouldNavigate.value = false
+    // }
 
     Scaffold(
         topBar = {
@@ -117,83 +122,92 @@ fun Loup(navController: NavController) {
         }
     ) { innerPadding ->
 
-            Column(
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Circle for the image at the center of the screen
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .size(250.dp)
+                    .background(Color(0xFFF46363), CircleShape)
+                    .padding(16.dp)
             ) {
-                // Circle for the image at the center of the screen
-                Box(
-                    contentAlignment = Alignment.Center,
+                // Placeholder for the image
+                // Replace with an actual Image composable when you have the image resource
+                Image(
+                    painter = painterResource(id = R.drawable.loup),
+                    contentDescription = "Center Image",
                     modifier = Modifier
-                        .size(250.dp)
-                        .background(Color(0xFFF46363), CircleShape)
-                        .padding(16.dp)
+                        .size(168.dp)
+                        .padding(8.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(90.dp))
+            // Your form or any other composables go here
+            // For example, a dropdown menu or a list of players
+
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = {
+                        expanded = !expanded
+                    }
                 ) {
-                    // Placeholder for the image
-                    // Replace with an actual Image composable when you have the image resource
-                    Image(
-                        painter = painterResource(id = R.drawable.loup),
-                        contentDescription = "Center Image",
-                        modifier = Modifier
-                            .size(168.dp)
-                            .padding(8.dp)
+                    TextField(
+                        value = selectedText,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier.menuAnchor()
                     )
-                }
-                Spacer(modifier = Modifier.height(90.dp))
-                // Your form or any other composables go here
-                // For example, a dropdown menu or a list of players
 
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    ExposedDropdownMenuBox(
+                    ExposedDropdownMenu(
                         expanded = expanded,
-                        onExpandedChange = {
-                            expanded = !expanded
-                        }
+                        onDismissRequest = { expanded = false }
                     ) {
-                        TextField(
-                            value = selectedText,
-                            onValueChange = {},
-                            readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                            modifier = Modifier.menuAnchor()
-                        )
-
-                        ExposedDropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            coffeeDrinks.forEach { item ->
-                                DropdownMenuItem(
-                                    text = { Text(text = item) },
-                                    onClick = {
-                                        selectedText = item
-                                        expanded = false
-                                        Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
-                                    }
-                                )
-                            }
+                        coffeeDrinks.forEach { item ->
+                            DropdownMenuItem(
+                                text = { Text(text = item) },
+                                onClick = {
+                                    selectedText = item
+                                    expanded = false
+                                    Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
+                                }
+                            )
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-                // Send button
-                Button(
-                    onClick = {},
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text("Vote")
-                }
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
+            // Send button
+            Button(
+                onClick = {},
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(0.5f)
+                    .height(72.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD8D8D8))
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.croc),
+                    contentDescription = "Vote Image",
+                    modifier = Modifier.size(50.dp)
+                )
+            }
+
+        }
     }
 }

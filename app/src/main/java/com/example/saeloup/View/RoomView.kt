@@ -44,7 +44,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.firebase.Firebase
+import com.google. firebase.Firebase
 import com.google.firebase.database.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*

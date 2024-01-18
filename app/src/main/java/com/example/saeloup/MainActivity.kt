@@ -53,8 +53,8 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "main") {
                     composable("main") {
-                        MainScreen(navController)
-//                        Sorciere(navController)
+                        Loup(navController)
+                     //   Room(navController)
                     }
                     composable("newScreen") {
                         Room(navController)
