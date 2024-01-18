@@ -80,7 +80,7 @@ fun ModelNavigation(navController: NavController) {
 
 fun navigateBasedOnDeroulementEtRole(deroulement: String, roleJoueur: String, navController: NavController) {
     when {
-//        deroulement == "nuit" || deroulement == "jour" -> navController.navigate("${deroulement}View")
+        deroulement == "nuit" || deroulement == "villageois" -> navController.navigate("${deroulement}View")
         deroulement == roleJoueur -> navController.navigate("${deroulement}View")
         else -> {
             // Gérer les cas inattendus ou la valeur par défaut
