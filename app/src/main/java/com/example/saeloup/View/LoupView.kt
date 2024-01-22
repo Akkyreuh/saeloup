@@ -52,6 +52,8 @@ import com.example.saeloup.R
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 
@@ -66,11 +68,15 @@ class LoupView {
 fun Loup(navController: NavController) {
     val deroulement = remember { mutableStateOf("") }
     val shouldNavigate = remember { mutableStateOf(false) }
+//    val joueurs = remember { mutableStateOf(listOf<String>()) }
+    val joueurs = remember { mutableStateOf(listOf<Pair<String, String>>()) }
+
+    val boutonVisible = remember { mutableStateOf(true) }
+
 
     val context = LocalContext.current
-    val coffeeDrinks = arrayOf("Americano", "Cappuccino", "Espresso", "Latte", "Mocha")
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(coffeeDrinks[0]) }
+    var selectedText = "Choisir sa cible"
 
 
     val partiePath = AppState.currentJoueurPath?.substringBefore("/Joueurs") ?: ""
@@ -94,6 +100,29 @@ fun Loup(navController: NavController) {
                 // Gérer l'erreur
             }
         })
+
+        // Récupérer la liste des joueurs non-loups
+        val joueursRef = Firebase.database.reference.child("Partie6247/Joueurs")
+        joueursRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val joueursList = snapshot.children.mapNotNull { joueurSnapshot ->
+                    val pseudo = joueurSnapshot.child("pseudo").getValue(String::class.java)
+                    val role = joueurSnapshot.child("role").getValue(String::class.java)
+                    val id = joueurSnapshot.key // ou une autre façon d'obtenir l'ID unique
+
+                    if (role != "loup" && pseudo != null && id != null) Pair(
+                        pseudo.trim(),
+                        id
+                    ) else null
+                }
+                joueurs.value = joueursList
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Gérer l'erreur
+            }
+        })
+
     }
 
     if (shouldNavigate.value) {
@@ -101,6 +130,12 @@ fun Loup(navController: NavController) {
         navController.navigate("modelnavigation")
         shouldNavigate.value = false
      }
+
+
+    // Fonction pour trouver l'ID d'un joueur basé sur son pseudo
+    fun trouveIdDuJoueur(pseudo: String): String? {
+        return joueurs.value.find { it.first == pseudo }?.second
+    }
 
     Scaffold(
         topBar = {
@@ -176,13 +211,13 @@ fun Loup(navController: NavController) {
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        coffeeDrinks.forEach { item ->
+                        joueurs.value.forEach { (pseudo, _) -> // Utilise la déstructuration pour obtenir seulement le pseudo
                             DropdownMenuItem(
-                                text = { Text(text = item) },
+                                text = { Text(text = pseudo) }, // Affiche le pseudo
                                 onClick = {
-                                    selectedText = item
+                                    selectedText = pseudo // Utilise le pseudo pour selectedText
                                     expanded = false
-                                    Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
+                                    // Toast.makeText(context, pseudo, Toast.LENGTH_SHORT).show()
                                 }
                             )
                         }
@@ -192,22 +227,50 @@ fun Loup(navController: NavController) {
 
             Spacer(modifier = Modifier.height(24.dp))
             // Send button
-            Button(
-                onClick = {},
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(0.5f)
-                    .height(72.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD8D8D8))
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.croc),
-                    contentDescription = "Vote Image",
-                    modifier = Modifier.size(50.dp)
-                )
-            }
+            if (boutonVisible.value) {
+                Button(
+                    onClick = {
+                        val joueurId = trouveIdDuJoueur(selectedText)
+                        if (joueurId != null) {
+                            val joueurRef =
+                                Firebase.database.reference.child("Partie6247/Joueurs/$joueurId/vote")
+                            joueurRef.runTransaction(object : Transaction.Handler {
+                                override fun doTransaction(mutableData: MutableData): Transaction.Result {
+                                    val currentVote = mutableData.getValue(Int::class.java) ?: 0
+                                    mutableData.value = currentVote + 1
+                                    return Transaction.success(mutableData)
+                                }
 
+                                override fun onComplete(
+                                    databaseError: DatabaseError?,
+                                    b: Boolean,
+                                    dataSnapshot: DataSnapshot?
+                                ) {
+                                    // Traiter la fin de la transaction ici
+                                }
+                            })
+                        } else {
+                            // Gérer le cas où l'ID du joueur n'est pas trouvé
+                        }
+                        boutonVisible.value = false
+                    },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(0.5f)
+                        .height(72.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD8D8D8))
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.croc),
+                        contentDescription = "Vote Image",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+
+            }
         }
     }
 }
+
+
