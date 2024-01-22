@@ -31,6 +31,8 @@ import com.example.saeloup.R
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 
@@ -42,12 +44,11 @@ class VillageoisView {
 fun Villageois(navController: NavController) {
     val deroulement = remember { mutableStateOf("") }
     val shouldNavigate = remember { mutableStateOf(false) }
+    val joueurs = remember { mutableStateOf(listOf<Pair<String, String>>()) }
+    val boutonVisible = remember { mutableStateOf(true) }
 
-    val context = LocalContext.current
-    val coffeeDrinks = arrayOf("Americano", "Cappuccino", "Espresso", "Latte", "Mocha")
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(coffeeDrinks[0]) }
-
+    var selectedText = remember { mutableStateOf("Choisir un joueur") }
 
     val partiePath = AppState.currentJoueurPath?.substringBefore("/Joueurs") ?: ""
 
@@ -60,7 +61,24 @@ fun Villageois(navController: NavController) {
                 if (deroulement.value != "villageois") {
                     shouldNavigate.value = true
                 }
-                Log.d("RoomView", "Deroulement: ${deroulement.value}, Should Navigate: ${shouldNavigate.value}")
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Gérer l'erreur
+            }
+        })
+
+        val joueursRef = Firebase.database.reference.child("$partiePath/Joueurs")
+        joueursRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val joueursList = snapshot.children.mapNotNull { joueurSnapshot ->
+                    val pseudo = joueurSnapshot.child("pseudo").getValue(String::class.java)
+                    val etat = joueurSnapshot.child("etat").getValue(String::class.java)
+                    val id = joueurSnapshot.key
+
+                    if (etat == "vivant" && pseudo != null && id != null) Pair(pseudo.trim(), id) else null
+                }
+                joueurs.value = joueursList
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -70,10 +88,14 @@ fun Villageois(navController: NavController) {
     }
 
     if (shouldNavigate.value) {
-        Log.d("RoomView", "humm")
         navController.navigate("modelnavigation")
         shouldNavigate.value = false
     }
+
+    fun trouveIdDuJoueur(pseudo: String): String? {
+        return joueurs.value.find { it.first == pseudo }?.second
+    }
+
     Scaffold(
         topBar = {
             SmallTopAppBar(
@@ -112,22 +134,81 @@ fun Villageois(navController: NavController) {
                 )
             }
             Spacer(modifier = Modifier.height(32.dp))
-            DropdownMenuSample()
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = {},
+
+            // Liste déroulante des joueurs
+            Box(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(0.5f)
-                    .height(72.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0))
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.urne_electorale),
-                    contentDescription = "Vote Image",
-                    modifier = Modifier.size(50.dp)
-                )
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = {
+                        expanded = !expanded
+                    }
+                ) {
+                    TextField(
+                        value = selectedText.value,
+                        onValueChange = { selectedText.value = it },
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier.menuAnchor()
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        joueurs.value.forEach { (pseudo, _) ->
+                            DropdownMenuItem(
+                                text = { Text(text = pseudo) },
+                                onClick = {
+                                    selectedText.value = pseudo
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Bouton pour voter
+            if (boutonVisible.value) {
+                Button(
+                    onClick = {
+                        val joueurId = trouveIdDuJoueur(selectedText.value)
+                        if (joueurId != null) {
+                            val joueurRef = Firebase.database.reference.child("$partiePath/Joueurs/$joueurId/vote")
+                            joueurRef.runTransaction(object : Transaction.Handler {
+                                override fun doTransaction(mutableData: MutableData): Transaction.Result {
+                                    val currentVote = mutableData.getValue(Int::class.java) ?: 0
+                                    mutableData.value = currentVote + 1
+                                    return Transaction.success(mutableData)
+                                }
+
+                                override fun onComplete(databaseError: DatabaseError?, b: Boolean, dataSnapshot: DataSnapshot?) {
+                                    // Traiter la fin de la transaction ici
+                                }
+                            })
+                        }
+                        boutonVisible.value = false
+                    },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(0.5f)
+                        .height(72.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0))
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.urne_electorale),
+                        contentDescription = "Vote Image",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
             }
         }
     }

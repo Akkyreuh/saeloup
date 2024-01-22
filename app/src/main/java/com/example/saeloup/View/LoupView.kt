@@ -101,19 +101,21 @@ fun Loup(navController: NavController) {
             }
         })
 
-        // Récupérer la liste des joueurs non-loups
+        // Récupérer la liste des joueurs non-loups et vivants
         val joueursRef = Firebase.database.reference.child("$partiePath/Joueurs")
         joueursRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val joueursList = snapshot.children.mapNotNull { joueurSnapshot ->
                     val pseudo = joueurSnapshot.child("pseudo").getValue(String::class.java)
                     val role = joueurSnapshot.child("role").getValue(String::class.java)
+                    val etat = joueurSnapshot.child("etat").getValue(String::class.java)
                     val id = joueurSnapshot.key // ou une autre façon d'obtenir l'ID unique
 
-                    if (role != "loup" && pseudo != null && id != null) Pair(
-                        pseudo.trim(),
-                        id
-                    ) else null
+                    if (role != "loup" && etat == "vivant" && pseudo != null && id != null) {
+                        Pair(pseudo.trim(), id)
+                    } else {
+                        null
+                    }
                 }
                 joueurs.value = joueursList
             }
@@ -122,6 +124,7 @@ fun Loup(navController: NavController) {
                 // Gérer l'erreur
             }
         })
+
 
     }
 
