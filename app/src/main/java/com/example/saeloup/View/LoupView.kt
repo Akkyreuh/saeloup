@@ -102,7 +102,7 @@ fun Loup(navController: NavController) {
         })
 
         // Récupérer la liste des joueurs non-loups
-        val joueursRef = Firebase.database.reference.child("Partie6247/Joueurs")
+        val joueursRef = Firebase.database.reference.child("$partiePath/Joueurs")
         joueursRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val joueursList = snapshot.children.mapNotNull { joueurSnapshot ->
@@ -233,7 +233,7 @@ fun Loup(navController: NavController) {
                         val joueurId = trouveIdDuJoueur(selectedText)
                         if (joueurId != null) {
                             val joueurRef =
-                                Firebase.database.reference.child("Partie6247/Joueurs/$joueurId/vote")
+                                Firebase.database.reference.child("$partiePath/Joueurs/$joueurId/vote")
                             joueurRef.runTransaction(object : Transaction.Handler {
                                 override fun doTransaction(mutableData: MutableData): Transaction.Result {
                                     val currentVote = mutableData.getValue(Int::class.java) ?: 0
