@@ -81,6 +81,25 @@ fun Loup(navController: NavController) {
 
     val partiePath = AppState.currentJoueurPath?.substringBefore("/Joueurs") ?: ""
 
+
+    val joueurPath = AppState.currentJoueurPath ?: return
+    Log.d("joueurPath", "joueurPath: ${joueurPath}")
+
+    val votePoster = remember { mutableStateOf(false) }
+    val votePosterRef = Firebase.database.reference.child("$joueurPath/votePoster")
+
+    LaunchedEffect(joueurPath) {
+        votePosterRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                votePoster.value = snapshot.getValue(Boolean::class.java) ?: false
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Gérer l'erreur
+            }
+        })
+    }
+
     LaunchedEffect(partiePath) {
         val deroulementRef = Firebase.database.reference.child("$partiePath/deroulement")
         deroulementRef.addValueEventListener(object : ValueEventListener {
@@ -129,10 +148,10 @@ fun Loup(navController: NavController) {
     }
 
     if (shouldNavigate.value) {
-      Log.d("RoomView", "humm")
+        Log.d("RoomView", "humm")
         navController.navigate("modelnavigation")
         shouldNavigate.value = false
-     }
+    }
 
 
     // Fonction pour trouver l'ID d'un joueur basé sur son pseudo
@@ -230,32 +249,24 @@ fun Loup(navController: NavController) {
 
             Spacer(modifier = Modifier.height(24.dp))
             // Send button
-            if (boutonVisible.value) {
+            if (!votePoster.value) {
                 Button(
                     onClick = {
                         val joueurId = trouveIdDuJoueur(selectedText)
                         if (joueurId != null) {
-                            val joueurRef =
-                                Firebase.database.reference.child("$partiePath/Joueurs/$joueurId/vote")
-                            joueurRef.runTransaction(object : Transaction.Handler {
-                                override fun doTransaction(mutableData: MutableData): Transaction.Result {
-                                    val currentVote = mutableData.getValue(Int::class.java) ?: 0
-                                    mutableData.value = currentVote + 1
-                                    return Transaction.success(mutableData)
+                            val voteRef = Firebase.database.reference.child("$partiePath/Joueurs/$joueurId/vote")
+                            voteRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    val currentVote = snapshot.getValue(Int::class.java) ?: 0
+                                    voteRef.setValue(currentVote + 1)
+                                    votePosterRef.setValue(true) // Mettre à jour "votePoster"
                                 }
 
-                                override fun onComplete(
-                                    databaseError: DatabaseError?,
-                                    b: Boolean,
-                                    dataSnapshot: DataSnapshot?
-                                ) {
-                                    // Traiter la fin de la transaction ici
+                                override fun onCancelled(error: DatabaseError) {
+                                    // Gérer l'erreur
                                 }
                             })
-                        } else {
-                            // Gérer le cas où l'ID du joueur n'est pas trouvé
                         }
-                        boutonVisible.value = false
                     },
                     modifier = Modifier
                         .padding(16.dp)
@@ -270,8 +281,8 @@ fun Loup(navController: NavController) {
                         modifier = Modifier.size(50.dp)
                     )
                 }
-
             }
+
         }
     }
 }

@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController, startDestination = "main") {
                     composable("main") {
                         MainScreen(navController)
+//                        Loup(navController)
                     }
                     composable("newScreen") {
                         Room(navController)
@@ -209,7 +210,8 @@ fun verifierEtAjouterJoueur(pin: String, pseudo: String, navController: NavContr
                     "id" to snapshot.child("Joueurs").childrenCount + 1,
                     "role" to roleAttribue,
                     "pseudo" to pseudo,
-                    "vote" to 0
+                    "vote" to 0,
+                    "votePoster" to false
                 )
                 databaseReference.child("Joueurs").child("Joueur${snapshot.child("Joueurs").childrenCount + 1}").setValue(joueur)
                 val joueurPath = "Partie$pin/Joueurs/Joueur${snapshot.child("Joueurs").childrenCount + 1}"
