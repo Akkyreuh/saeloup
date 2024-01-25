@@ -13,12 +13,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -28,6 +32,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Text
@@ -44,6 +49,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.saeloup.AppState
@@ -70,9 +77,9 @@ fun Loup(navController: NavController) {
     val shouldNavigate = remember { mutableStateOf(false) }
 //    val joueurs = remember { mutableStateOf(listOf<String>()) }
     val joueurs = remember { mutableStateOf(listOf<Pair<String, String>>()) }
-
+    var showDropdownMenu by remember { mutableStateOf(false) }
     val boutonVisible = remember { mutableStateOf(true) }
-
+    val showPopup = remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
@@ -171,8 +178,12 @@ fun Loup(navController: NavController) {
                 },
                 actions = {
                     // Placeholder for the button at the top right
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = { showPopup.value = true }) {
                         Icon(Icons.Filled.MoreVert, contentDescription = "More actions")
+                    }
+
+                    if (showPopup.value) {
+                        PopupContent(onDismiss = { showPopup.value = false })
                     }
                 }
             )
@@ -284,6 +295,82 @@ fun Loup(navController: NavController) {
             }
 
         }
+    }
+}
+
+@Composable
+fun PopupContent(onDismiss: () -> Unit) {
+    val scrollState = rememberScrollState()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Galerie") },
+        text = {
+            Column(modifier = Modifier.verticalScroll(scrollState)) {
+                // Premier élément
+                BoxWithContent(imageId = R.drawable.loup, text = "LE LOUP GAROU EST TRES VILAIN ET MANGE DES VILLAGEOIS")
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Deuxième élément
+                BoxWithContent(imageId = R.drawable.fourche, text = "LE VILLAGEOIS DOIT EMPALLER LES VILAINS LOUP GAROUS")
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Troisième élément
+                BoxWithContent(imageId = R.drawable.crystal, text = "LA VOYANTE REGARDE DANS SA BOULE ET DEVINE LE ROLE DES GENS")
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Quatrième élément
+                BoxWithContent(imageId = R.drawable.fusil, text = "LE CHASSEUR MET UNE GROSSE BALLE ENTRE LES YEUX DE CELUI QU'IL VEUT QUANT IL CREVE")
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Cinquième élément
+                BoxWithContent(imageId = R.drawable.potion__3_, text = "LA SORCIERE PEUT CHOISIR DE SAUVER OU DE TUER QUELQU'UN, UNE FOIS DE CHAQUE")
+                Spacer(modifier = Modifier.height(16.dp))
+
+                BoxWithContent(imageId = R.drawable.bouclier__1_, text = "LE GARDE PROTEGE LES PETITS VILLAGEOIS AVEC SON GROS BOUCLIER")
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF4CAF50), // Couleur de fond du bouton
+                    contentColor = Color.White // Couleur du texte et de l'icône
+                )
+            ) {
+                Text(
+                    "OK",
+                    fontWeight = FontWeight.Bold, // Rendre le texte du bouton gras
+                    color = Color.White // Définir explicitement la couleur du texte si nécessaire
+                )
+            }
+        }
+    )
+}
+
+
+@Composable
+fun BoxWithContent(imageId: Int, text: String) {
+    // Utiliser Column au lieu de Box pour empiler verticalement
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally, // Centrer horizontalement les éléments dans la colonne
+        modifier = Modifier
+            .width(200.dp) // Réduire la largeur de la colonne
+            .padding(8.dp) // Ajouter un peu de padding autour de la colonne
+    ) {
+        Image(
+            painter = painterResource(id = imageId),
+            contentDescription = "Image",
+            modifier = Modifier
+                .height(150.dp) // Réduire la hauteur de l'image
+                .padding(8.dp) // Ajouter un peu de padding autour de l'image
+        )
+        Spacer(modifier = Modifier.height(8.dp)) // Espacer l'image du texte
+        Text(
+            text = text,
+            textAlign = TextAlign.Center, // Centrer le texte
+            modifier = Modifier.padding(horizontal = 4.dp) // Ajouter un peu de padding sur les côtés du texte
+        )
     }
 }
 

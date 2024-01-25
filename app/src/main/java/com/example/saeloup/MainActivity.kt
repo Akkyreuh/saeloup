@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
@@ -54,7 +55,7 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController, startDestination = "main") {
                     composable("main") {
                         MainScreen(navController)
-//                        Loup(navController)
+                  // Loup(navController)
                     }
                     composable("newScreen") {
                         Room(navController)
@@ -109,25 +110,24 @@ fun MainScreen(navController: NavController) {
             Greeting("ROARRR")
             Spacer(modifier = Modifier.height(16.dp))
 
-
-            SimpleFilledTextFieldSample(
+            // Use the styled text field for PIN
+            StyledTextField(
                 text = pin.value,
                 onValueChange = { newValue -> pin.value = newValue },
                 label = "CODE PIN"
             )
 
-            SimpleFilledTextFieldSample(
+            // Use the styled text field for Pseudo
+            StyledTextField(
                 text = pseudo.value,
                 onValueChange = { newValue -> pseudo.value = newValue },
-                label = "PSEUDO :"
+                label = "PSEUDO"
             )
-
-
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Bouton de validation
-            ValiderButton(onClick = { verifierEtAjouterJoueur(pin.value, pseudo.value, navController) })
+            // Use the styled button for validation
+            StyledButton(onClick = { verifierEtAjouterJoueur(pin.value, pseudo.value, navController) })
         }
     }
 }
@@ -328,5 +328,43 @@ fun ValiderButton(onClick: () -> Unit) {
 fun GreetingPreview() {
     SaeloupTheme {
         Greeting("ROARRR", modifier = Modifier.padding(top = 32.dp))
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StyledTextField(text: String, onValueChange: (String) -> Unit, label: String) {
+    TextField(
+        value = text,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        colors = TextFieldDefaults.textFieldColors(
+            containerColor = Color.LightGray,
+            focusedIndicatorColor = Color.Transparent, // Hide the indicator
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        shape = RoundedCornerShape(8.dp), // Rounded corners
+        singleLine = true
+    )
+}
+
+@Composable
+fun StyledButton(onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp, vertical = 8.dp)
+            .height(48.dp), // Set the height
+        shape = RoundedCornerShape(8.dp), // Rounded corners
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF6200EE), // Example color
+            contentColor = Color.White
+        )
+    ) {
+        Text(text = "Valider")
     }
 }
