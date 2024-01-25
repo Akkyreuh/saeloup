@@ -35,6 +35,8 @@ import com.example.saeloup.View.GardeView
 import com.example.saeloup.View.Cupidon
 import com.example.saeloup.View.CupidonView
 import com.example.saeloup.View.Mort
+import com.example.saeloup.View.SorciereDead
+import com.example.saeloup.View.SorciereDeadView
 import com.example.saeloup.View.Villageois
 import com.example.saeloup.View.VillageoisView
 import com.example.saeloup.View.Voyante
@@ -86,6 +88,9 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("mortView") {
                         Mort(navController)
+                    }
+                    composable("sorciereDeadView"){
+                        SorciereDead(navController)
                     }
                 }
             }

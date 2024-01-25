@@ -94,7 +94,7 @@ fun Sorciere(navController: NavController) = Scaffold(
             }
             Spacer(modifier = Modifier.width(16.dp))
             Button(
-                onClick = {},
+                onClick = {navController.navigate("SorciereDeadView")},
                 modifier = Modifier
                     .weight(1f)
                     .height(72.dp),
