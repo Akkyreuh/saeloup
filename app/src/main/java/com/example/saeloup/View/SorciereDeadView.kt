@@ -92,20 +92,7 @@ fun SorciereDead(navController: NavController) {
     val joueurPath = AppState.currentJoueurPath ?: return
     Log.d("joueurPath", "joueurPath: ${joueurPath}")
 
-    val votePoster = remember { mutableStateOf(false) }
-    val votePosterRef = Firebase.database.reference.child("$joueurPath/votePoster")
 
-    LaunchedEffect(joueurPath) {
-        votePosterRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                votePoster.value = snapshot.getValue(Boolean::class.java) ?: false
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Gérer l'erreur
-            }
-        })
-    }
 
     LaunchedEffect(partiePath) {
         val deroulementRef = Firebase.database.reference.child("$partiePath/deroulement")
@@ -137,7 +124,7 @@ fun SorciereDead(navController: NavController) {
                     val etat = joueurSnapshot.child("etat").getValue(String::class.java)
                     val id = joueurSnapshot.key // ou une autre façon d'obtenir l'ID unique
 
-                    if (role != "loup" && etat == "vivant" && pseudo != null && id != null) {
+                    if (etat == "vivant" && pseudo != null && id != null) {
                         Pair(pseudo.trim(), id)
                     } else {
                         null
@@ -260,34 +247,24 @@ fun SorciereDead(navController: NavController) {
 
             Spacer(modifier = Modifier.height(24.dp))
             // Send button
-            if (!votePoster.value) {
-                Button(
-                    onClick = {
-                        val joueurId = trouveIdDuJoueur(selectedText)
-                        if (joueurId != null) {
-                            val voteRef = Firebase.database.reference.child("$partiePath/Joueurs/$joueurId/vote")
-                            voteRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                                override fun onDataChange(snapshot: DataSnapshot) {
-                                    val currentVote = snapshot.getValue(Int::class.java) ?: 0
-                                    voteRef.setValue(currentVote + 1)
-                                    votePosterRef.setValue(true) // Mettre à jour "votePoster"
-                                }
+            Button(
+                onClick = {
+                    val joueurId = trouveIdDuJoueur(selectedText)
+                    if (joueurId != null) {
+                        val etatRef = Firebase.database.reference.child("$partiePath/Joueurs/$joueurId/etat")
 
-                                override fun onCancelled(error: DatabaseError) {
-                                    // Gérer l'erreur
-                                }
-                            })
-                        }
-                    },
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(0.5f)
-                        .height(72.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD8D8D8))
-                ) {
+                        etatRef.setValue("presqueMort")
+                    }
+                },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(0.5f)
+                    .height(72.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD8D8D8))
+            ) {
                     Image(
-                        painter = painterResource(id = R.drawable.croc),
+                        painter = painterResource(id = R.drawable.potion__2_),
                         contentDescription = "Vote Image",
                         modifier = Modifier.size(50.dp)
                     )
@@ -296,7 +273,7 @@ fun SorciereDead(navController: NavController) {
 
         }
     }
-}
+
 
 @Composable
 fun PopupContentWitch(onDismiss: () -> Unit) {
