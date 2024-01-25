@@ -96,7 +96,7 @@ fun Villageois(navController: NavController) {
             }
         })
 
-        // Récupérer la liste des joueurs non-loups et vivants
+        // Récupérer la liste des joueurs  vivants
         val joueursRef = Firebase.database.reference.child("$partiePath/Joueurs")
         joueursRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
