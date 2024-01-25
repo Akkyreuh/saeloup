@@ -85,6 +85,7 @@ fun navigateBasedOnDeroulementEtRole(deroulement: String, roleJoueur: String, et
 //        deroulement == "nuit" || deroulement == "villageois" -> navController.navigate("${deroulement}View")
         etat == "vivant" && deroulement == "villageois" -> navController.navigate("${deroulement}View")
         etat == "vivant" && deroulement == roleJoueur -> navController.navigate("${deroulement}View")
+        etat == "mort" -> navController.navigate("mortView")
         else -> {
             // Gérer les cas inattendus ou la valeur par défaut
         }
