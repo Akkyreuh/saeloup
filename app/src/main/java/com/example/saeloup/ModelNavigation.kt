@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 fun ModelNavigation(navController: NavController) {
     val deroulement = remember { mutableStateOf("") }
     val roleJoueur = remember { mutableStateOf("") }
+    val etatJoueur = remember { mutableStateOf("") }
 
     val joueurPath = AppState.currentJoueurPath ?: return
     Log.d("joueurPath", "joueurPath: ${joueurPath}")
@@ -35,6 +36,7 @@ fun ModelNavigation(navController: NavController) {
         joueurRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 roleJoueur.value = snapshot.child("role").getValue(String::class.java) ?: ""
+                etatJoueur.value = snapshot.child("etat").getValue(String::class.java) ?: ""
                 Log.d("role", "Role: ${roleJoueur.value}")
             }
 
@@ -49,7 +51,7 @@ fun ModelNavigation(navController: NavController) {
             override fun onDataChange(snapshot: DataSnapshot) {
                 deroulement.value = snapshot.child("deroulement").getValue(String::class.java) ?: ""
                 Log.d("ModelNav", "Deroulement: ${deroulement.value}")
-                navigateBasedOnDeroulementEtRole(deroulement.value, roleJoueur.value, navController)
+                navigateBasedOnDeroulementEtRole(deroulement.value, roleJoueur.value, etatJoueur.value, navController)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -78,10 +80,11 @@ fun ModelNavigation(navController: NavController) {
     }
 }
 
-fun navigateBasedOnDeroulementEtRole(deroulement: String, roleJoueur: String, navController: NavController) {
+fun navigateBasedOnDeroulementEtRole(deroulement: String, roleJoueur: String, etat: String, navController: NavController) {
     when {
-        deroulement == "nuit" || deroulement == "villageois" -> navController.navigate("${deroulement}View")
-        deroulement == roleJoueur -> navController.navigate("${deroulement}View")
+//        deroulement == "nuit" || deroulement == "villageois" -> navController.navigate("${deroulement}View")
+        etat == "vivant" && deroulement == "villageois" -> navController.navigate("${deroulement}View")
+        etat == "vivant" && deroulement == roleJoueur -> navController.navigate("${deroulement}View")
         else -> {
             // Gérer les cas inattendus ou la valeur par défaut
         }
