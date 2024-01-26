@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.saeloup.AppState
 import com.example.saeloup.R
@@ -41,23 +42,19 @@ class SorciereView {
 fun Sorciere(navController: NavController) {
     val deroulement = remember { mutableStateOf("") }
     val shouldNavigate = remember { mutableStateOf(false) }
-//    val joueurs = remember { mutableStateOf(listOf<String>()) }
     val joueurs = remember { mutableStateOf(listOf<Pair<String, String>>()) }
 
-    val boutonVisible = remember { mutableStateOf(true) }
 
     val showPopup = remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
-    var expanded by remember { mutableStateOf(false) }
-    var selectedText = "Choisir sa cible"
-
 
     val partiePath = AppState.currentJoueurPath?.substringBefore("/Joueurs") ?: ""
 
 
     val joueurPath = AppState.currentJoueurPath ?: return
     Log.d("joueurPath", "joueurPath: ${joueurPath}")
+
+    val joueurPresqueMort = remember { mutableStateOf("") }
+    val joueurPresqueMortId = remember { mutableStateOf<Int?>(null) }
 
 
     LaunchedEffect(partiePath) {
@@ -80,29 +77,27 @@ fun Sorciere(navController: NavController) {
             }
         })
 
-        // Récupérer la liste des joueurs  vivants
         val joueursRef = Firebase.database.reference.child("$partiePath/Joueurs")
         joueursRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val joueursList = snapshot.children.mapNotNull { joueurSnapshot ->
-                    val pseudo = joueurSnapshot.child("pseudo").getValue(String::class.java)
-                    val role = joueurSnapshot.child("role").getValue(String::class.java)
+                // Parcourir tous les joueurs pour trouver celui avec l'état "presqueMort"
+                snapshot.children.forEach { joueurSnapshot ->
                     val etat = joueurSnapshot.child("etat").getValue(String::class.java)
-                    val id = joueurSnapshot.key // ou une autre façon d'obtenir l'ID unique
+                    val pseudo = joueurSnapshot.child("pseudo").getValue(String::class.java)
+                    val id = joueurSnapshot.child("id").getValue(Int::class.java)
 
-                    if (etat == "vivant" && pseudo != null && id != null) {
-                        Pair(pseudo.trim(), id)
-                    } else {
-                        null
+                    if (etat == "presqueMort" && pseudo != null) {
+                        joueurPresqueMort.value = pseudo.trim()
+                        joueurPresqueMortId.value = id
                     }
                 }
-                joueurs.value = joueursList
             }
 
             override fun onCancelled(error: DatabaseError) {
                 // Gérer l'erreur
             }
         })
+
 
 
     }
@@ -164,19 +159,28 @@ fun Sorciere(navController: NavController) {
                         .padding(8.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(90.dp))
+            Spacer(modifier = Modifier.height(30.dp))
             Text(
-                text = "Joueur 1 est visé",
+                text = if (joueurPresqueMort.value.isNotEmpty()) "${joueurPresqueMort.value} est visé" else "Aucun joueur visé",
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
-            // Deux boutons sur la même ligne
+            Spacer(modifier = Modifier.height(50.dp))
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth().padding(16.dp)
             ) {
                 Button(
-                    onClick = {},
+                    onClick = {
+                        val joueurId = joueurPresqueMortId.value
+                        Log.d("joueurId", "$joueurId")
+                        val etatRef = Firebase.database.reference.child("$partiePath/Joueurs/Joueur$joueurId/etat")
+                        val deroulementRef = Firebase.database.reference.child("$partiePath/deroulement")
+                        etatRef.setValue("vivant")
+                        deroulementRef.setValue("passageJour")
+                              },
                     modifier = Modifier
                         .weight(1f)
                         .height(72.dp),
@@ -206,7 +210,10 @@ fun Sorciere(navController: NavController) {
                 }
             }
             Button(
-                onClick = {},
+                onClick = {
+                    val deroulementRef = Firebase.database.reference.child("$partiePath/deroulement")
+                    deroulementRef.setValue("passageJour")
+                          },
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth(0.5f)
@@ -215,7 +222,7 @@ fun Sorciere(navController: NavController) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD8D8D8))
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.dessin_anime_yeux_heureux),
+                    painter = painterResource(id = R.drawable.croix),
                     contentDescription = "Vote Image",
                     modifier = Modifier.size(50.dp)
                 )
@@ -224,69 +231,3 @@ fun Sorciere(navController: NavController) {
     }
 }
 
-@Composable
-fun PopupContentsWITCH(onDismiss: () -> Unit, joueurId: String,  partiePath: String) {
-    var roleDuJoueur by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(joueurId) {
-        val joueurRef = Firebase.database.reference.child("$partiePath/Joueurs/$joueurId")
-        joueurRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                roleDuJoueur = snapshot.child("role").getValue(String::class.java)
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Gérer l'erreur
-            }
-        })
-    }
-
-    AlertDialog(
-        onDismissRequest = { },
-        // autres propriétés de l'AlertDialog...
-        text = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally, // Centre les éléments dans la colonne
-                modifier = Modifier.fillMaxWidth() // Assurez-vous que la colonne prend toute la largeur disponible
-            ) {
-                Text("Rôle du joueur sélectionné :")
-                Spacer(modifier = Modifier.height(10.dp))
-                if (roleDuJoueur != null) {
-                    Text(
-                        text = roleDuJoueur!!,
-                        fontWeight = FontWeight.Bold, // Met le texte en gras
-                        textAlign = TextAlign.Center, // Centre le texte
-                        modifier = Modifier
-                            .fillMaxWidth() // Assurez-vous que le Text prend toute la largeur disponible
-                            .wrapContentSize(Alignment.Center) // Centre le contenu dans le Text
-                    )
-                } else {
-                    Text("Chargement...")
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    val deroulementRef = Firebase.database.reference.child("$partiePath/deroulement")
-                    deroulementRef.setValue("loup").addOnSuccessListener {
-                        onDismiss()
-                    }.addOnFailureListener { e ->
-                        // Gérer l'échec de la mise à jour
-                        Log.e("AlertDialog", "Erreur lors de la mise à jour de deroulement", e)
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4CAF50), // Couleur de fond du bouton
-                    contentColor = Color.White // Couleur du texte et de l'icône
-                )
-            ) {
-                Text(
-                    "OK",
-                    fontWeight = FontWeight.Bold, // Rendre le texte du bouton gras
-                    color = Color.White // Définir explicitement la couleur du texte si nécessaire
-                )
-            }
-        }
-    )
-}

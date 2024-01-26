@@ -252,10 +252,13 @@ fun SorciereDead(navController: NavController) {
                     val joueurId = trouveIdDuJoueur(selectedText)
                     if (joueurId != null) {
                         val etatRef = Firebase.database.reference.child("$partiePath/Joueurs/$joueurId/etat")
+                        val deroulementRef = Firebase.database.reference.child("$partiePath/deroulement")
 
                         etatRef.setValue("presqueMort")
+                        deroulementRef.setValue("passageJour")
                     }
-                },
+                }
+                ,
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth(0.5f)
