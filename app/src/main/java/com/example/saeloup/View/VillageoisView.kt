@@ -49,7 +49,7 @@ fun Villageois(navController: NavController) {
 
     val boutonVisible = remember { mutableStateOf(true) }
 
-
+    val showPopup = remember { mutableStateOf(false) }
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     var selectedText = "Choisir sa cible"
@@ -147,8 +147,12 @@ fun Villageois(navController: NavController) {
                 },
                 actions = {
                     // Placeholder for the button at the top right
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = { showPopup.value = true }) {
                         Icon(Icons.Filled.MoreVert, contentDescription = "More actions")
+                    }
+
+                    if (showPopup.value) {
+                        PopupContent(onDismiss = { showPopup.value = false })
                     }
                 }
             )
