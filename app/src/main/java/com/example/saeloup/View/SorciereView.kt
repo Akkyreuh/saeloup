@@ -56,6 +56,10 @@ fun Sorciere(navController: NavController) {
     val joueurPresqueMort = remember { mutableStateOf("") }
     val joueurPresqueMortId = remember { mutableStateOf<Int?>(null) }
 
+    val popoHealUse = remember { mutableStateOf(false) }
+    val popoDeathUse = remember { mutableStateOf(false) }
+    val joueurRef = Firebase.database.reference.child(joueurPath)
+
 
     LaunchedEffect(partiePath) {
         val deroulementRef = Firebase.database.reference.child("$partiePath/deroulement")
@@ -91,6 +95,25 @@ fun Sorciere(navController: NavController) {
                         joueurPresqueMortId.value = id
                     }
                 }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Gérer l'erreur
+            }
+        })
+
+
+        joueurRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                // Mettre à jour popoHealUse et popoDeathUse à true si les champs existent
+                if (snapshot.hasChild("popoHeal")) {
+                    popoHealUse.value = true
+                }
+                if (snapshot.hasChild("popoDeath")) {
+                    popoDeathUse.value = true
+                }
+
+                Log.d("FirebaseData", "PopoHealUse: ${popoHealUse.value}, PopoDeathUse: ${popoDeathUse.value}")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -172,15 +195,20 @@ fun Sorciere(navController: NavController) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth().padding(16.dp)
             ) {
+                if (popoHealUse.value == false){
                 Button(
                     onClick = {
+                        val popoHealRef = Firebase.database.reference.child("$joueurPath/popoHeal")
+                        popoHealRef.setValue(true)
                         val joueurId = joueurPresqueMortId.value
                         Log.d("joueurId", "$joueurId")
-                        val etatRef = Firebase.database.reference.child("$partiePath/Joueurs/Joueur$joueurId/etat")
-                        val deroulementRef = Firebase.database.reference.child("$partiePath/deroulement")
+                        val etatRef =
+                            Firebase.database.reference.child("$partiePath/Joueurs/Joueur$joueurId/etat")
+                        val deroulementRef =
+                            Firebase.database.reference.child("$partiePath/deroulement")
                         etatRef.setValue("vivant")
                         deroulementRef.setValue("passageJour")
-                              },
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .height(72.dp),
@@ -193,20 +221,28 @@ fun Sorciere(navController: NavController) {
                         modifier = Modifier.size(50.dp)
                     )
                 }
+            }
                 Spacer(modifier = Modifier.width(16.dp))
-                Button(
-                    onClick = { navController.navigate("SorciereDeadView") },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(72.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD8D8D8))
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.potion__2_),
-                        contentDescription = "Vote Image",
-                        modifier = Modifier.size(50.dp)
-                    )
+                if (popoDeathUse.value == false){
+                    Button(
+                        onClick = {
+                            val popoDeathRef = Firebase.database.reference.child("$joueurPath/popoDeath")
+                            popoDeathRef.setValue(true).addOnSuccessListener {
+                                navController.navigate("SorciereDeadView")
+                            }
+                                  },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(72.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD8D8D8))
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.potion__2_),
+                            contentDescription = "Vote Image",
+                            modifier = Modifier.size(50.dp)
+                        )
+                    }
                 }
             }
             Button(
