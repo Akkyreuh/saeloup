@@ -137,10 +137,6 @@ fun Voyante(navController: NavController) {
                     IconButton(onClick = { showPopup.value = true }) {
                         Icon(Icons.Filled.MoreVert, contentDescription = "More actions")
                     }
-
-                    if (showPopup.value) {
-                        PopupContent(onDismiss = { showPopup.value = false })
-                    }
                 }
             )
         }
